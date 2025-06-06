@@ -21,12 +21,20 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Utility chunking function
-const { chunkText } = require('./utils');
+// Dummy chunkText util - replace with your actual chunking logic
+function chunkText(text, chunkSize = 1000) {
+  const chunks = [];
+  let start = 0;
+  while (start < text.length) {
+    chunks.push(text.slice(start, start + chunkSize));
+    start += chunkSize;
+  }
+  return chunks;
+}
 
-app.get('/', (req,res)=>{
-    res.send("hello from host")
-})
+app.get('/', (req, res) => {
+  res.send("Hello from MindzFlair PDF QnA backend");
+});
 
 // Upload endpoint
 app.post('/upload-pdf', upload.array('files', 20), async (req, res) => {
@@ -35,15 +43,29 @@ app.post('/upload-pdf', upload.array('files', 20), async (req, res) => {
       return res.status(400).json({ error: 'No files uploaded' });
     }
 
+    console.log('Files received:', req.files.map(f => f.originalname));
+
     let response = [];
 
     for (const file of req.files) {
+      console.log(`Processing file: ${file.filename}`);
+
       const buffer = fs.readFileSync(file.path);
       const data = await pdfParse(buffer);
       const rawText = data.text;
-      const chunks = chunkText(rawText, 1000);
 
-      console.log(`PDF "${file.originalname}" → ${chunks.length} chunks`);
+      const chunks = chunkText(rawText, 1000);
+      console.log(`Chunks count for "${file.originalname}":`, chunks.length);
+      console.log('Chunks preview:', chunks.slice(0, 2));
+
+      try {
+        const chunkPath = path.join(UPLOAD_DIR, file.filename + '_chunks.json');
+        fs.writeFileSync(chunkPath, JSON.stringify(chunks, null, 2));
+        console.log(`Saved chunk file: ${chunkPath}`);
+      } catch (err) {
+        console.error('Error writing chunk JSON:', err);
+        return res.status(500).json({ error: 'Failed to save chunk JSON' });
+      }
 
       response.push({
         filename: file.originalname,
@@ -51,11 +73,6 @@ app.post('/upload-pdf', upload.array('files', 20), async (req, res) => {
         textLength: rawText.length,
         chunkCount: chunks.length,
       });
-
-      // Save chunks JSON file using the multer filename (unique)
-      const chunkPath = path.join(UPLOAD_DIR, file.filename + '_chunks.json');
-      fs.writeFileSync(chunkPath, JSON.stringify(chunks, null, 2));
-      console.log(` Saved chunk file: ${chunkPath}`);
     }
 
     res.json({ message: 'PDFs chunked successfully', files: response });
