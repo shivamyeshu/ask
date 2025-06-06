@@ -1,0 +1,5 @@
+step 1
+ initalized the folder > connect with github > setup depecdency 
+ depecdency: {  express ,multer ,pdf-parse ,openai ,chroma-node ,cors ,dotenv ,jest + supertest }
+
+ step 2
