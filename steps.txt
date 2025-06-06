@@ -3,3 +3,5 @@ step 1
  depecdency: {  express ,multer ,pdf-parse ,openai ,chroma-node ,cors ,dotenv ,jest + supertest }
 
  step 2
+  created server.js -> add multer, created js , auto create uploads folder -> to save file in upload folder (only.pdf)
+ , 

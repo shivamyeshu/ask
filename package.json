@@ -9,9 +9,11 @@
   "license": "ISC",
   "author": "Shivam",
   "type": "commonjs",
-  "main": "main.js",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+   
+    "start":"nodemon server.js"
+    
   },
   "dependencies": {
     "chroma-node": "^1.0.3",
