@@ -11,11 +11,10 @@
   "type": "commonjs",
   "main": "server.js",
   "scripts": {
-   
-    "start":"nodemon server.js"
-    
+    "start": "nodemon server.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.0",
     "chroma-node": "^1.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
